@@ -1,4 +1,4 @@
-# Flink Project 
+g# Flink Project 
 
 ### Application Requirements
 - **Java version:** 11
@@ -30,9 +30,19 @@ flink run -p 3 -c master.VehicleTelematics target/cloud-project-1.0-SNAPSHOT.jar
 
 You can see your app here: http://localhost:8081/#/overview
 
+#### Stop cluster
+````
+./bin/stop-cluster.sh
+````
+
+
 ### Problems
 1. If you have problem with Java Version:
    1. Check your actual version of java: ```java --version```
    2. Check your installed java versions: ```/usr/libexec/java_home -V```
    3. Switch active JDK: ```export JAVA_HOME=`/usr/libexec/java_home -v <version>` ```
+   Example:
+   ```
+   export JAVA_HOME=`/usr/libexec/java_home -v 11.0.13`
+   ```
 2. ...
