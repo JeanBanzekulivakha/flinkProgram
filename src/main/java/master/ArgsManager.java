@@ -42,10 +42,6 @@ public class ArgsManager {
             throw new RuntimeException(String.format("Path to input file doesn't exist. " +
                     "Please check it again. Your path is: %s", argPathToInputFile));
         }
-//        if(isPathNotExit(argPathToOutputFolder)) {
-//            throw new RuntimeException(String.format("Path to output folder doesn't exist. " +
-//                    "Please check it again. Your path is: %s", argPathToOutputFolder));
-//        }
     }
 
     private boolean isPathNotExit(String path) {
