@@ -56,16 +56,16 @@ import static org.apache.flink.core.fs.FileSystem.WriteMode.OVERWRITE;
 public class VehicleTelematics {
 
     public static void main(String[] args) throws Exception {
-        File file = new File("src/main/resources/sample-traffic-input.csv");
+        ArgsManager argsManager = new ArgsManager(args);
+        final String folderName = argsManager.getPathToOutputFolder() + "/";
+        File file = new File(argsManager.getPathToInputFile());
         String absolutePath = file.getAbsolutePath();
-
 
         final StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.getExecutionEnvironment();
 
         //for debugging only
         env.setParallelism(1);
-
         // Event time is the default setting
         // https://nightlies.apache.org/flink/flink-docs-release-1.12/api/java/org/apache/flink/streaming/api/TimeCharacteristic.html
         //env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
@@ -91,9 +91,9 @@ public class VehicleTelematics {
                     }
                 });
 
-        SpeedRadar(events);
-        AverageSpeedControl(events);
-        AccidentReporter(events);
+        SpeedRadar(events, folderName);
+        AverageSpeedControl(events, folderName);
+        AccidentReporter(events, folderName);
 
         env.execute("Vehicle Telematics execution");
     }
@@ -102,7 +102,7 @@ public class VehicleTelematics {
     /**
      * Detects cars that overcome the speed limit of 90 mph.
      */
-    static void SpeedRadar(DataStream<TelmeteryDataPoint> events) {
+    static void SpeedRadar(DataStream<TelmeteryDataPoint> events, String folderName) {
         events
                 .filter(new FilterFunction<TelmeteryDataPoint>() {
                     @Override
@@ -125,7 +125,7 @@ public class VehicleTelematics {
                                 telmeteryDataPoint.speed);
                     }
                 })
-                .writeAsCsv("speed-radar.csv", OVERWRITE);
+                .writeAsCsv(folderName + "speed-radar.csv", OVERWRITE);
 
     }
 
@@ -133,7 +133,7 @@ public class VehicleTelematics {
      * Detects stopped vehicles on any segment. A vehicle is stopped when it reports at
      * least 4 consecutive events from the same position.
      */
-    static void AccidentReporter(DataStream<TelmeteryDataPoint> events) {
+    static void AccidentReporter(DataStream<TelmeteryDataPoint> events, String folderName) {
 
         events
                 .flatMap(new RichFlatMapFunction<TelmeteryDataPoint,
@@ -207,7 +207,7 @@ public class VehicleTelematics {
 
                     }
                 })
-                .writeAsCsv("accident-reporter.csv", OVERWRITE);
+                .writeAsCsv(folderName + "accident-reporter.csv", OVERWRITE);
     }
 
     /**
@@ -215,7 +215,7 @@ public class VehicleTelematics {
      * in both directions. If a car sends several reports on segments 52 or 56,
      * the ones taken for the average speed are the ones that cover a longer distance..
      */
-    static void AverageSpeedControl(DataStream<TelmeteryDataPoint> events) {
+    static void AverageSpeedControl(DataStream<TelmeteryDataPoint> events, String folderName) {
 
         //can be a custom solution or with the windows (advanced solution)
         events
@@ -295,6 +295,6 @@ public class VehicleTelematics {
 
                     }
                 })
-                .writeAsCsv("average-speed-control.csv", OVERWRITE);
+                .writeAsCsv(folderName + "average-speed-control.csv", OVERWRITE);
     }
 }

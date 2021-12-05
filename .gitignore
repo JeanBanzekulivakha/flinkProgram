@@ -17,5 +17,4 @@ target/
 
 # Resource data
 dependency-reduced-pom.xml
-*sample-traffic-input.csv
-*sample-traffic-3xways.csv
+*.csv
