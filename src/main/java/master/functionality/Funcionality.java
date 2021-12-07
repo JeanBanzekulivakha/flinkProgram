@@ -10,7 +10,7 @@ abstract class Funcionality {
 
     protected Funcionality(DataStream<TelmeteryDataPoint> events, String folderName) {
         this.events = events;
-        this.folderName = folderName;
+        this.folderName = folderName.charAt(folderName.length() - 1) == '/' ? folderName : folderName + "/";
     }
 
     abstract public void run();

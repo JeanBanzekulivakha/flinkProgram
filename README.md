@@ -25,7 +25,7 @@ mvn clean package -Pbuild-jar
 
 #### Run application
 ````
-flink run -p 3 -c master.VehicleTelematics target/cloud-project-1.0-SNAPSHOT.jar src/main/resources/sample-traffic-3xways.csv src/main/resources/
+flink run -p 3 -c master.VehicleTelematics target/flink-quickstart-java-1.0-SNAPSHOT.jar src/main/resources/sample-traffic-3xways.csv src/main/resources/
 ````
 
 You can see your app here: http://localhost:8081/#/overview
