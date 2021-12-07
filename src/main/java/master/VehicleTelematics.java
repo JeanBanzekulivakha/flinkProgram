@@ -60,18 +60,17 @@ public class VehicleTelematics {
 
     public static void main(String[] args) throws Exception {
         ArgsManager argsManager = new ArgsManager(args);
+
         final String folderName = argsManager.getPathToOutputFolder() + "/";
         File file = new File(argsManager.getPathToInputFile());
+
         String absolutePath = file.getAbsolutePath();
 
         final StreamExecutionEnvironment env =
                 StreamExecutionEnvironment.getExecutionEnvironment();
 
-        //for debugging only
-        env.setParallelism(1);
-        // Event time is the default setting
-        // https://nightlies.apache.org/flink/flink-docs-release-1.12/api/java/org/apache/flink/streaming/api/TimeCharacteristic.html
-        //env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        //The program must be optimized to run on a Flink cluster with 3 task manager slots available
+        env.setParallelism(3);
 
         //Read the data from the file
         DataStream<String> vehiclesData = env.readTextFile(absolutePath);
