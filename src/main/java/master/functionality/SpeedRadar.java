@@ -41,4 +41,5 @@ public class SpeedRadar extends Funcionality {
         }
 
     }
+
 }
