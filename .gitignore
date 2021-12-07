@@ -16,4 +16,5 @@ log/
 target/
 
 # Resource data
-*sample-traffic-3xways.csv
+dependency-reduced-pom.xml
+*.csv
