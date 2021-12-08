@@ -1,7 +1,13 @@
 package master.functionality;
 
 import master.TelmeteryDataPoint;
+import org.apache.flink.api.java.functions.KeySelector;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.functions.AscendingTimestampExtractor;
+import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
 
 import static org.apache.flink.core.fs.FileSystem.WriteMode.OVERWRITE;
 
@@ -12,6 +18,9 @@ import static org.apache.flink.core.fs.FileSystem.WriteMode.OVERWRITE;
  */
 public class AverageSpeedControl extends Funcionality {
 
+    private static final int MIN_SEGMENT = 52;
+    private static final int MAX_SEGMENT = 56;
+
     public AverageSpeedControl(DataStream<TelmeteryDataPoint> events, String folderName) {
         super(events, folderName);
     }
@@ -20,11 +29,28 @@ public class AverageSpeedControl extends Funcionality {
     public void run() {
         //can be a custom solution or with the windows (advanced solution)
         events
-                .flatMap(new AverageSpeedControlMapping())
+                .filter((TelmeteryDataPoint p) -> p.segment >= MIN_SEGMENT && p.segment <= MAX_SEGMENT)
+                .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<TelmeteryDataPoint>() {
+                    @Override
+                    public long extractAscendingTimestamp(TelmeteryDataPoint telmeteryDataPoint) {
+                        return telmeteryDataPoint.timestamp * 1000;
+                    }
+                })
+                .keyBy(new PersonalKeySelector())
+                //we need to have all the segement 52 to 56 and each will be reported once means 180 seconds or more
+                .window(EventTimeSessionWindows.withGap(Time.seconds(180)))
+                .process(new AvaregeSpeedControlProcess())
                 .writeAsCsv(folderName + "avgspeedfines.csv", OVERWRITE)
                 .setParallelism(1);
     }
 
-    //avgspeedfines
+    public static class PersonalKeySelector implements KeySelector<TelmeteryDataPoint, Tuple3<Integer, Integer, Integer>> {
+
+        @Override
+        public Tuple3<Integer, Integer, Integer> getKey(TelmeteryDataPoint point) throws Exception {
+            return new Tuple3<>(point.vehicleId, point.highway, point.direction);
+        }
+
+    }
 
 }
