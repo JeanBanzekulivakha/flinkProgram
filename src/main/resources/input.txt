@@ -1,2 +1,0 @@
-"Hello",
-"My Dataset API Flink Program"
